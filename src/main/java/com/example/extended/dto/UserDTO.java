@@ -12,6 +12,4 @@ public class UserDTO {
     private String username;
     @NotNull
     private String password;
-    @NotNull
-    private List<Role> roles;
 }
