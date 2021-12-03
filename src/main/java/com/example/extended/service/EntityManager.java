@@ -7,11 +7,9 @@ import com.example.extended.model.Book;
 import com.example.extended.pojo.SimplePage;
 import com.example.extended.repository.AuthorRepository;
 import com.example.extended.repository.BookRepository;
-import com.example.extended.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
