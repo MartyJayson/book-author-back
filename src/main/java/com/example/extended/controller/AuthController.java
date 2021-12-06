@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -56,6 +56,7 @@ public class AuthController {
         userRespository.save(user);
         return ResponseEntity.ok("Password updated");
     }
+
     @PostMapping("/signin")
     public ResponseEntity<?> authUser(@RequestBody LoginRequest loginRequest) {
 
@@ -81,14 +82,19 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
-        if (userRespository.existsByUsername(signupRequest.getUsername())) {
+        if (userRespository.existsByUsername(signupRequest.getUsername()) ||
+                userRespository.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is exist"));
+                    .body(new MessageResponse("Error: Username or Email is already exist"));
         }
-
-        User user = new User(signupRequest.getUsername(),
-                passwordEncoder.encode(signupRequest.getPassword()));
+        int a = (int) (Math.random()*100000+1);
+        User user = new User(
+                signupRequest.getUsername(),
+                passwordEncoder.encode(signupRequest.getPassword()),
+                        signupRequest.getEmail(),
+                        a
+                );
 
         List<String> reqRoles = signupRequest.getRoles();
         List<Role> roles = new ArrayList<>();

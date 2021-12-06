@@ -20,17 +20,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     private String username;
+    private String email;
     private String password;
+    private int code;
+    private boolean activated = false;
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
     )
     private List<Role> roles;
 
-    public User(String username, String password) {
+    public User(String username, String password, String email, int code) {
         this.username = username;
         this.password = password;
+        this.email = email;
+        this.code = code;
     }
 }
