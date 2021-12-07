@@ -1,9 +1,7 @@
 package com.example.extended.controller;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.example.extended.config.jwt.JwtUtils;
@@ -51,7 +49,12 @@ public class AuthController {
     }
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody LoginRequest loginRequest){
-        User user = userRespository.findUserByUsername(loginRequest.getUsername());
+        User user = new User();
+        if(userRespository.existsByUsername(loginRequest.getUsername()))
+            user = userRespository.findUserByUsername(loginRequest.getUsername());
+        else if(userRespository.existsByEmail(loginRequest.getUsername()))
+            user = userRespository.findUserByEmail(loginRequest.getUsername());
+
         user.setPassword(passwordEncoder.encode(loginRequest.getPassword()));
         userRespository.save(user);
         return ResponseEntity.ok("Password updated");
@@ -95,6 +98,10 @@ public class AuthController {
                         signupRequest.getEmail(),
                         a
                 );
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Timestamp(calendar.getTime().getTime()));
+        calendar.add(Calendar.MINUTE, 30);
+        user.setDate(calendar.getTime());
 
         List<String> reqRoles = signupRequest.getRoles();
         List<Role> roles = new ArrayList<>();
@@ -131,6 +138,7 @@ public class AuthController {
             });
         }
         user.setRoles(roles);
+        user.setActivated(false);
         userRespository.save(user);
         return ResponseEntity.ok(new MessageResponse("User CREATED"));
     }
