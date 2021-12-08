@@ -8,10 +8,7 @@ import com.example.extended.config.jwt.JwtUtils;
 import com.example.extended.model.ERole;
 import com.example.extended.model.Role;
 import com.example.extended.model.User;
-import com.example.extended.pojo.JwtResponse;
-import com.example.extended.pojo.LoginRequest;
-import com.example.extended.pojo.MessageResponse;
-import com.example.extended.pojo.SignupRequest;
+import com.example.extended.pojo.*;
 import com.example.extended.repository.RoleRepository;
 import com.example.extended.repository.UserRepository;
 import com.example.extended.service.UserDetailsImpl;
@@ -43,10 +40,23 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
-    @GetMapping("/{id}")
-    public User find(@PathVariable Long id){
-        return userRespository.findUserById(id);
-    }
+    @PostMapping("/")
+    public User find(@RequestBody FindRequest request){
+        User u = userRespository.findUserById(request.getId());
+        request.setRole(request.getRole().substring(2, request.getRole().length()-2));
+        if(u.getUsername().equals(request.getUsername())) {
+            u.setUsername(request.getUsername());
+            return u;
+        }
+        else {
+
+                if (request.getRole().equals("ROLE_MODERATOR") ||
+                        request.getRole().equals("ROLE_ADMIN")) {
+                    return u;
+                }
+            }
+            return null;
+        }
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody LoginRequest loginRequest){
         User user = new User();
@@ -59,7 +69,22 @@ public class AuthController {
         userRespository.save(user);
         return ResponseEntity.ok("Password updated");
     }
-
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable Long id, @RequestBody FindRequest request){
+        User u = userRespository.findUserById(id);
+        request.setRole(request.getRole().substring(2, request.getRole().length()-2));
+        if(u.getUsername().equals(request.getUsername())) {
+            u.setUsername(request.getUsername());
+            userRespository.deleteById(id);
+            return "USER:"+ id + " deleted himself";
+        }
+        else {
+            if (request.getRole().equals("ROLE_ADMIN")) {
+                return "Admin deleted USER:" + id;
+            }
+        }
+        return null;
+    }
     @PostMapping("/signin")
     public ResponseEntity<?> authUser(@RequestBody LoginRequest loginRequest) {
 
